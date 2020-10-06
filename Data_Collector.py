@@ -104,20 +104,28 @@ def map_songs(lista, arquivo='Total'):
         albums, columns=['artist id', 'artist name', 'album id', 'album name'])
     # Albums = Albums.rename()
     album_ids = list(Albums['album id'])
-    data = pd.DataFrame([])
+    # print(len(album_ids))
+    data = pd.DataFrame()
+    tr = []
     for album_id in album_ids:
-        t = sp.album_tracks(album_id)
-        artist = t['items'][0]['artists'][0]['name']
-        album = t['items'][0]['name']
-        album_id = t['items'][0]['id']
-        duration = t['items'][0]['duration_ms']
+        t = sp.album_tracks(album_id, limit=50, market='BR')
+        tr.extend(t['items'])
+    # print(len(tr))
+    # print(tr[0].keys())
+    for i in range(len(tr)):
+        artist = tr[i]['artists'][0]['name']
+        # print(artist)
+        album = tr[i]['name']
+        album_id = tr[i]['id']
+        duration = tr[i]['duration_ms']
         features = sp.audio_features(album_id)
-        for entry in features:
-            entry['artist'] = artist
-            entry['album'] = album
-            entry['album_id'] = album_id
-            data = data.append(entry, ignore_index=True)
+        Features = pd.DataFrame(features)
+        Features['artist'] = artist
+        Features['album'] = album
+        Features['album_id'] = album_id
+        data = data.append(Features, ignore_index=True)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
+    data = data.dropna()
     file = arquivo + '.csv'
     data.to_csv(file, index=False)
 

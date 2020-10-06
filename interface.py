@@ -13,17 +13,17 @@ ms = dc.map_songs
 mp = dc.map_playlist
 merge = dm.merge_datasets
 f = gr.get_related
-playlist = 'Swagger'
-# mp('37i9dQZF1DWSlw12ofHcMM', 'Spotify', playlist)
-# DF = pd.read_csv(playlist + '.csv')
-# a = list(set(DF['artist_id'].values))
-# b = f(a)
-# b = [item for item, count in collections.Counter(
-#     b).items() if count > min(5, (int(1 + .15 * len(a))))]
-# a.extend(b)
-# a = list(set(a))
-# print(DF)
-# ms(a)
+playlist = 'Progressive Metal'
+mp('37i9dQZF1DX5wgKYQVRARv', 'Spotify', playlist)
+DF = pd.read_csv(playlist + '.csv')
+a = list(set(DF['artist_id'].values))
+# print(a)
+# # b = f(a)
+# # b = [item for item, count in collections.Counter(
+# #     b).items() if count > min(5, (int(1 + .15 * len(a))))]
+# # a.extend(b)
+# # print(DF)
+ms(a)
 n = CT.cluster()
 print(n)
 NN.Classifier()

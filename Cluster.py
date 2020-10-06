@@ -9,8 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import AffinityPropagation
 from pandas.api.types import is_numeric_dtype
-from sklearn.preprocessing import MinMaxScaler
-sns.set()
+from sklearn.preprocessing import MinMaxScaler as Scaler
 
 
 def num_encoder(database):
@@ -23,19 +22,17 @@ def num_encoder(database):
 
 
 def cluster():
+    n_clusters = 0
     Full_data = pd.read_csv('Total.csv')
     ID = Full_data['id']
-    try:
-        Full_data = Full_data.drop(
-            ['album', 'album_id', 'artist', 'id'], axis=1)
-    except:
-        pass
-    # data = pd.read_csv('Total limpo.csv')
-    scaler = MinMaxScaler()
-    data_u = scaler.fit_transform(Full_data)
+    Full_data = Full_data.drop(
+        columns=['album', 'album_id', 'artist', 'id'])
+    Fdata = Full_data.values
+    scaler = Scaler()
+    data_u = scaler.fit_transform(Fdata)
     # pca_transf = PCA(0.8)
     # PCA_data = pca_transf.fit_transform(data_u)
-    clusterer = AffinityPropagation(preference=-5, random_state=None)
+    clusterer = AffinityPropagation(random_state=None, preference=-10)
     # clusterer = HDBSCAN(min_cluster_size=50)
     labels = clusterer.fit_predict(data_u)
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
