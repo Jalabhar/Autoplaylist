@@ -28,9 +28,11 @@ def Classifier():
         mode="auto",
         save_freq="epoch",
     )
-    in_data = 'cluster_limpo.csv'
+    in_data = 'clustered.csv'
     data = pd.read_csv(in_data)
     data = data.dropna()
+    id = data['id']
+    data = data.drop(columns=['id'])
     step = 1
     train_data_0 = data
     train_label = train_data_0['cluster']

@@ -26,24 +26,21 @@ token = util.prompt_for_user_token(username=username,
 
 def create_playlists(n, name):
     sp = spotipy.Spotify(auth=token)
-    for i in range(1, n):
-        k = str(i)
-        Name = name + ' ' + k
-        Source = 'Complete ' + Name
-        file_source = Source + '.csv'
+    for i in range(n):
+        k = str(i + 1)
+        Name = 'Jalabhar ' + name + k
+        file_source = Name + '.csv'
         try:
             tracks_database = pd.read_csv(file_source)
             if len(tracks_database['album'].values) < 10:
                 pass
             else:
-                # tracks_database = tracks_database.drop_duplicates(
-                #     'track', keep='first')
+                tracks_database = tracks_database.drop_duplicates(
+                    'track', keep='first')
                 new_list = sp.user_playlist_create(
                     username, name=Name, public=False)
                 list_id = new_list['id']
                 tracks_id = list(tracks_database['id'])
-                # sp.user_playlist_add_tracks(
-                #     Client_ID, list_id, tracks_id)
                 L = len(tracks_id)
                 if L % 50 != 0.0:
                     n = 1 + int(L / 50)

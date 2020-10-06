@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import numpy as np
 import json
+import csv
 from spotipy.oauth2 import SpotifyClientCredentials
 # To access authorised Spotify data
 
@@ -24,7 +25,7 @@ def audio_features(spotify_albums, album, sp):
     spotify_albums[album]['key'] = []
     # create a track counter
     track_count = 0
-    for track in spotify_albums[album]['uri']:
+    for track in spotify_albums[album]['id']:
         try:
             # pull audio features per track
             features = sp.audio_features(track)
@@ -50,8 +51,8 @@ def audio_features(spotify_albums, album, sp):
             spotify_albums[album]['key'].append(
                 features[0]['key'])
             # popularity is stored elsewhere
-            pop = sp.track(track)
-            spotify_albums[album]['popularity'].append(pop['popularity'])
+            data = sp.track(track)
+            spotify_albums[album]['popularity'].append(data['popularity'])
             track_count += 1
         except:
             pass
@@ -81,61 +82,49 @@ def albumSongs(uri, spotify_albums, sp, album_names, album_count):
     return spotify_albums
 
 
-def map_songs(lista, prt, n_keep=30, arquivo='Total'):
-    sleep_min = 0.5
-    sleep_max = 1.0
-    request_count = 0
+def map_songs(lista, arquivo='Total'):
     client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
     client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    INFO = pd.DataFrame()
-    song_ids = []
+    albums = []
     for artist_id in lista:
-        data = sp.artist_albums(
+        results = sp.artist_albums(
             artist_id, album_type='album,single', country='BR')
-        for i in range(len(data['items'])):
-            album_id = data['items'][i]['id']
-            songs = sp.album_tracks(album_id)
-            song_ids.append(songs['items'][0]['id'])
-    playlist_info = []
-    for song_id in song_ids:
-        # pull audio features per track
-        meta = sp.track(song_id)
-        features = sp.audio_features(song_id)
-        # analysis = sp.audio_analysis(track)
-        # Append to relevant key-value
-        name = meta['name']
-        album = meta['album']['name']
-        artist = meta['album']['artists'][0]['name']
-        artist_id = meta['album']['artists'][0]['id']
-        release_date = meta['album']['release_date']
-        length = meta['duration_ms']
-        popularity = meta['popularity']
-        acousticness = features[0]['acousticness']
-        danceability = features[0]['danceability']
-        energy = features[0]['energy']
-        instrumentalness = features[0]['instrumentalness']
-        liveness = features[0]['liveness']
-        loudness = features[0]['loudness']
-        speechiness = features[0]['speechiness']
-        tempo = features[0]['tempo']
-        time_signature = features[0]['key']
-        key = features[0]['time_signature']
-        track = [name, album, artist, artist_id, release_date, length, popularity,
-                 acousticness, danceability, energy, instrumentalness,
-                 liveness, loudness, speechiness, tempo, time_signature, key]
-        labels = ['name', 'album', 'artist', 'artist_id', 'release_date', 'length', 'popularity',
-                  'acousticness', 'danceability', 'energy', 'instrumentalness',
-                  'liveness', 'loudness', 'speechiness', 'tempo', 'time_signature', 'key']
-        playlist_info.append(track)
-    INFO = pd.DataFrame(playlist_info, columns=labels)
-    INFO.to_csv(arquivo + '.csv', index=False)
-    INFO_limpo = INFO.drop(
-        columns=['name', 'album', 'artist', 'artist_id', 'release_date'])
-    INFO_limpo.to_csv(arquivo + ' limpo.csv', index=False)
-    # df = pd.DataFrame.from_dict(data)
+        albums.append([results['items'][0]['artists'][0]['id'],
+                       results['items'][0]['artists'][0]['name'],
+                       results['items'][0]['id'], results['items'][0]['name']])
+        while results['next']:
+            results = sp.next(results)
+            albums.append([results['items'][0]['artists'][0]['id'],
+                           results['items'][0]['artists'][0]['name'],
+                           results['items'][0]['id'], results['items'][0]['name']])
+    Albums = pd.DataFrame(
+        albums, columns=['artist id', 'artist name', 'album id', 'album name'])
+    # Albums = Albums.rename()
+    album_ids = list(Albums['album id'])
+    data = pd.DataFrame([])
+    for album_id in album_ids:
+        t = sp.album_tracks(album_id)
+        artist = t['items'][0]['artists'][0]['name']
+        album = t['items'][0]['name']
+        album_id = t['items'][0]['id']
+        duration = t['items'][0]['duration_ms']
+        features = sp.audio_features(album_id)
+        for entry in features:
+            entry['artist'] = artist
+            entry['album'] = album
+            entry['album_id'] = album_id
+            data = data.append(entry, ignore_index=True)
+    data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
+    file = arquivo + '.csv'
+    data.to_csv(file, index=False)
+
+
+def chunkify(lst, n):
+    L = [lst[i::n] for i in range(n)]
+    return L
 
 
 def map_playlist(playlist_ID, user, arquivo):
@@ -176,8 +165,11 @@ def map_playlist(playlist_ID, user, arquivo):
         track = [name, album, artist, artist_id, release_date, length, popularity,
                  acousticness, danceability, energy, instrumentalness,
                  liveness, loudness, speechiness, tempo, time_signature, key]
+        labels = ['name', 'album', 'artist', 'artist_id', 'release_date', 'length', 'popularity',
+                  'acousticness', 'danceability', 'energy', 'instrumentalness',
+                  'liveness', 'loudness', 'speechiness', 'tempo', 'time_signature', 'key']
         playlist_info.append(track)
-    INFO = pd.DataFrame(playlist_info)
+    INFO = pd.DataFrame(playlist_info, columns=labels)
     INFO.to_csv(arquivo + '.csv', index=False)
     # desc = INFO.describe()
 
