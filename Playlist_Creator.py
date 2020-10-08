@@ -32,26 +32,31 @@ def create_playlists(n, name):
         k = str(i + 1)
         Name = "Jalabhar's " + name + ' ' + k
         file_source = Name + '.csv'
-        tracks_database = pd.read_csv(file_source)
-        # tracks_database = tracks_database.drop_duplicates(
-        #     'track', keep='first')
-        new_list = sp.user_playlist_create(
-            username, name=Name, )
-        list_id = new_list['id']
-        tracks_id = list(tracks_database['id'])
-        L = len(tracks_id)
-        # DB = pd.DataFrame(columns=['playlist_ids'])
-        if L > 5:
-            if L % 50 != 0.0:
-                n = 1 + int(L / 50)
-            else:
-                n = int(L / 50)
-            T = chunkify(tracks_id, n)
-            for chunk in T:
-                sp.user_playlist_add_tracks(
-                    Client_ID, list_id, chunk)
-            lid.append(list_id)
-            names.append(Name)
+        try:
+            tracks_database = pd.read_csv(file_source)
+            # tracks_database = tracks_database.drop_duplicates(
+            #     'track', keep='first')
+            new_list = sp.user_playlist_create(
+                username, name=Name, )
+            list_id = new_list['id']
+            tracks_id = list(tracks_database['id'])
+            L = len(tracks_id)
+            # DB = pd.DataFrame(columns=['playlist_ids'])
+            if L > 5:
+                if L % 50 != 0.0:
+                    n = 1 + int(L / 50)
+                else:
+                    n = int(L / 50)
+                T = chunkify(tracks_id, n)
+                for chunk in T:
+                    sp.user_playlist_add_tracks(
+                        Client_ID, list_id, chunk)
+                lid.append(list_id)
+                names.append(Name)
+        except FileNotFoundError:
+            pass
     df = pd.DataFrame(lid, columns=['playlist_id'])
     df['playlist_name'] = names
-    df.to_csv('playlist register.csv', index=False)
+    df2 = pd.read_csv('playlist register.csv')
+    df2 = df2.append(df)
+    df2.to_csv('playlist register.csv', index=False)

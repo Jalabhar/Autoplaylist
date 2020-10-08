@@ -48,7 +48,7 @@ def Classifier():
     model.add(Dense(64, input_dim=len(train_data[0]), activation='relu'))
     for _ in range(n_layers):
         model.add(Dense(64, activation='relu'))
-        model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense((1 + np.max(train_label.values)), activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
