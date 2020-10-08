@@ -41,16 +41,17 @@ def create_playlists(n, name):
         tracks_id = list(tracks_database['id'])
         L = len(tracks_id)
         # DB = pd.DataFrame(columns=['playlist_ids'])
-        if L % 50 != 0.0:
-            n = 1 + int(L / 50)
-        else:
-            n = int(L / 50)
-        T = chunkify(tracks_id, n)
-        for chunk in T:
-            sp.user_playlist_add_tracks(
-                Client_ID, list_id, chunk)
-        lid.append(list_id)
-        names.append(Name)
+        if L > 5:
+            if L % 50 != 0.0:
+                n = 1 + int(L / 50)
+            else:
+                n = int(L / 50)
+            T = chunkify(tracks_id, n)
+            for chunk in T:
+                sp.user_playlist_add_tracks(
+                    Client_ID, list_id, chunk)
+            lid.append(list_id)
+            names.append(Name)
     df = pd.DataFrame(lid, columns=['playlist_id'])
     df['playlist_name'] = names
     df.to_csv('playlist register.csv', index=False)

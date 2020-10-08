@@ -92,14 +92,17 @@ def map_songs(lista, arquivo='Total'):
     for artist_id in lista:
         results = sp.artist_albums(
             artist_id, album_type='album,single', country='BR')
-        albums.append([results['items'][0]['artists'][0]['id'],
-                       results['items'][0]['artists'][0]['name'],
-                       results['items'][0]['id'], results['items'][0]['name']])
-        while results['next']:
-            results = sp.next(results)
+        try:
             albums.append([results['items'][0]['artists'][0]['id'],
                            results['items'][0]['artists'][0]['name'],
                            results['items'][0]['id'], results['items'][0]['name']])
+            while results['next']:
+                results = sp.next(results)
+                albums.append([results['items'][0]['artists'][0]['id'],
+                               results['items'][0]['artists'][0]['name'],
+                               results['items'][0]['id'], results['items'][0]['name']])
+        except:
+            pass
     Albums = pd.DataFrame(
         albums, columns=['artist id', 'artist name', 'album id', 'album name'])
     # Albums = Albums.rename()
@@ -125,7 +128,7 @@ def map_songs(lista, arquivo='Total'):
         Features['album_id'] = album_id
         data = data.append(Features, ignore_index=True)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
-    data = data.dropna()
+    # data = data.dropna()
     file = arquivo + '.csv'
     data.to_csv(file, index=False)
 
