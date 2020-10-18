@@ -91,18 +91,20 @@ def map_songs(lista, arquivo='Total'):
     albums = []
     for artist_id in lista:
         results = sp.artist_albums(
-            artist_id, album_type='album,single', country='BR')
-        try:
-            albums.append([results['items'][0]['artists'][0]['id'],
-                           results['items'][0]['artists'][0]['name'],
-                           results['items'][0]['id'], results['items'][0]['name']])
-            while results['next']:
-                results = sp.next(results)
-                albums.append([results['items'][0]['artists'][0]['id'],
-                               results['items'][0]['artists'][0]['name'],
-                               results['items'][0]['id'], results['items'][0]['name']])
-        except:
-            pass
+            artist_id, album_type='album', country='BR')
+        r = results['items']
+        # time.sleep(1)
+        for i in range(len(r)):
+            albums.append([r[i]['artists'][0]['id'],
+                           r[i]['artists'][0]['name'],
+                           r[i]['id'], r[i]['name']])
+        while results['next']:
+            results = sp.next(results)
+            r = results['items']
+            for i in range(len(r)):
+                albums.append([r[i]['artists'][0]['id'],
+                               r[i]['artists'][0]['name'],
+                               r[i]['id'], r[i]['name']])
     Albums = pd.DataFrame(
         albums, columns=['artist id', 'artist name', 'album id', 'album name'])
     # Albums = Albums.rename()
@@ -113,24 +115,31 @@ def map_songs(lista, arquivo='Total'):
     for album_id in album_ids:
         t = sp.album_tracks(album_id, limit=50, market='BR')
         tr.extend(t['items'])
+        # time.sleep(1)
     # print(len(tr))
     # print(tr[0].keys())
     for i in range(len(tr)):
         artist = tr[i]['artists'][0]['name']
         # print(artist)
-        album = tr[i]['name']
+        track = tr[i]['name']
         album_id = tr[i]['id']
         duration = tr[i]['duration_ms']
         features = sp.audio_features(album_id)
         Features = pd.DataFrame(features)
         Features['artist'] = artist
-        Features['album'] = album
+        Features['track'] = track
         Features['album_id'] = album_id
         data = data.append(Features, ignore_index=True)
+        if i % 50 == 49:
+            time.sleep(1)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
-    # data = data.dropna()
+    data = data.drop_duplicates(subset=['track'])
+    data[~data['track'].str.contains(
+        'live|Live|commentary|Commentary|version|Version|Edition|edition')]
+    data = data[data['liveness'] < 0.5]
+    Data = data[data['speechiness'] < 0.8]
     file = arquivo + '.csv'
-    data.to_csv(file, index=False)
+    Data.to_csv(file, index=False)
 
 
 def chunkify(lst, n):

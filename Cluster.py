@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from hdbscan import HDBSCAN
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
+from sklearn.cluster import MeanShift
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import AffinityPropagation
 from pandas.api.types import is_numeric_dtype
@@ -27,20 +27,25 @@ def cluster():
     Full_data = Full_data.dropna(axis=1, how='all')
     Full_data = Full_data.dropna(axis=0, how='any')
     ID = Full_data['id']
+    Mode = Full_data['mode']
+    length = Full_data['duration_ms']
     Full_data = Full_data.drop(
-        columns=['album', 'album_id', 'artist', 'id'])
+        columns=['track', 'album_id', 'artist', 'id', 'mode'])
     Fdata = Full_data.values
     scaler = Scaler()
     data_u = scaler.fit_transform(Fdata)
     # pca_transf = PCA(0.8)
     # PCA_data = pca_transf.fit_transform(data_u)
-    clusterer = AffinityPropagation(random_state=None, preference=-200)
-    # clusterer = HDBSCAN(min_cluster_size=50)
+    clusterer = AffinityPropagation(random_state=None, preference=-400)
+    # clusterer = HDBSCAN(min_cluster_size=20)
+    # clusterer = MeanShift()
     labels = clusterer.fit_predict(data_u)
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
     labels.shape = (len(labels), 1)
     Full_data['cluster'] = labels + 1
     Full_data['id'] = ID
+    Full_data['mode'] = Mode
+    Full_data['duration_ms'] = length
     Full_data.sort_values(by='cluster')
     Full_data.to_csv('clustered.csv', index=False)
     # sns.pairplot(Full_data, hue="cluster", palette='YlGnBu')

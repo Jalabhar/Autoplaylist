@@ -3,7 +3,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras import callbacks
 from keras.regularizers import l2
-from sklearn.preprocessing import RobustScaler as Scaler
+from sklearn.preprocessing import StandardScaler as Scaler
 import numpy as np
 import pandas as pd
 
@@ -45,15 +45,15 @@ def Classifier():
     # D = Scaler.transform()
     n_layers = 2
     model = Sequential()
-    model.add(Dense(64, input_dim=len(train_data[0]), activation='relu'))
+    model.add(Dense(16, input_dim=len(train_data[0]), activation='relu'))
     for _ in range(n_layers):
-        model.add(Dense(64, activation='relu'))
+        model.add(Dense(16, activation='relu'))
     model.add(Dropout(0.2))
     model.add(Dense((1 + np.max(train_label.values)), activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
-    model.fit(train_data, train_label, epochs=5000, batch_size=50,
-              verbose=1, callbacks=[es, mc], validation_split=0.2)
+    model.fit(train_data, train_label, epochs=250, batch_size=50,
+              verbose=2, callbacks=[es, mc], validation_split=0.2)
     model.load_weights('best_model.h5')
     probs = model.predict(train_data)
     predictions = np.argmax(probs, axis=-1)
