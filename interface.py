@@ -11,8 +11,8 @@ import Playlist_Creator as PC
 ms = dc.map_songs
 mp = dc.map_playlist
 f = gr.get_related
-playlist = 'Instrumental Madness'
-# mp('37i9dQZF1DWXWbLEOaHnU3', 'Spotify', playlist)
+playlist = 'Blues & Roots Rock'
+# # mp('37i9dQZF1DWXWbLEOaHnU3', 'Spotify', playlist)
 DF = pd.read_csv(playlist + '.csv')
 a = list(set(DF['artist_id'].values))
 # b = f(a)
@@ -27,4 +27,5 @@ print(n)
 NN.Classifier()
 CR.reassigner(playlist)
 CS.list_spliter(playlist)
+# n = 16
 PC.create_playlists(n, playlist)

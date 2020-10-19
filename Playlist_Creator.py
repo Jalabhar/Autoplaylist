@@ -24,7 +24,7 @@ token = util.prompt_for_user_token(username=username,
                                    redirect_uri=SPOTIPY_REDIRECT_URI)
 
 
-def create_playlists(n, name):
+def create_playlists(n, name, max_duration=10.0, min_duration=1.0):
     sp = spotipy.Spotify(auth=token)
     lid = []
     names = []
@@ -35,9 +35,12 @@ def create_playlists(n, name):
         try:
             tracks_database = pd.read_csv(file_source)
             # tracks_database = tracks_database[tracks_database['probs'] > .9]
-            if len(tracks_database) > 15:
-                # tracks_database = tracks_database.drop_duplicates(
-                #     'track', keep='first')
+            tracks_database['total time'] = tracks_database['duration_ms'].cumsum(
+            ) / 3600000.0
+            running_time = tracks_database['total time'].values
+            if running_time[-1] >= min_duration:
+                tracks_database = tracks_database[tracks_database['total time']
+                                                  <= max_duration]
                 new_list = sp.user_playlist_create(
                     username, name=Name, )
                 list_id = new_list['id']
