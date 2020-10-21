@@ -24,7 +24,7 @@ token = util.prompt_for_user_token(username=username,
                                    redirect_uri=SPOTIPY_REDIRECT_URI)
 
 
-def create_playlists(n, name, max_duration=10.0, min_duration=1.0):
+def create_playlists(n, name, max_duration=15.0, min_duration=1.0):
     sp = spotipy.Spotify(auth=token)
     lid = []
     names = []

@@ -34,10 +34,10 @@ def Classifier():
     id = data['id']
     data = data.drop(columns=['id'])
     step = 1
-    train_data_0 = data
-    train_label = train_data_0['cluster']
-    train_data = train_data_0.drop(
-        columns=['cluster'])
+    # train_data_0 = data
+    train_label = data['cluster']
+    train_data = data.drop(
+        columns=['cluster', 'artist'])
     train_data = train_data.fillna(0)
     train_label = train_label.fillna(0)
     train_data = scaler.fit_transform(train_data)
@@ -45,15 +45,15 @@ def Classifier():
     # D = Scaler.transform()
     n_layers = 2
     model = Sequential()
-    model.add(Dense(16, input_dim=len(train_data[0]), activation='relu'))
+    model.add(Dense(64, input_dim=len(train_data[0]), activation='relu'))
     for _ in range(n_layers):
-        model.add(Dense(16, activation='relu'))
-    model.add(Dropout(0.2))
+        model.add(Dense(64, activation='relu'))
+        model.add(Dropout(0.2))
     model.add(Dense((1 + np.max(train_label.values)), activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
-    model.fit(train_data, train_label, epochs=250, batch_size=50,
-              verbose=2, callbacks=[es, mc], validation_split=0.2)
+    model.fit(train_data, train_label, epochs=1000, batch_size=50,
+              verbose=2, callbacks=[es, mc], validation_split=0.2, shuffle=True)
     model.load_weights('best_model.h5')
     probs = model.predict(train_data)
     predictions = np.argmax(probs, axis=-1)

@@ -11,8 +11,8 @@ import Playlist_Creator as PC
 ms = dc.map_songs
 mp = dc.map_playlist
 f = gr.get_related
-playlist = 'Blues & Roots Rock'
-# # mp('37i9dQZF1DWXWbLEOaHnU3', 'Spotify', playlist)
+playlist = 'Adrenaline Workout'
+# mp('37i9dQZF1DWXWbLEOaHnU3', 'Spotify', playlist)
 DF = pd.read_csv(playlist + '.csv')
 a = list(set(DF['artist_id'].values))
 # b = f(a)

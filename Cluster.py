@@ -10,6 +10,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.cluster import AffinityPropagation
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler as Scaler
+from sklearn.utils import shuffle as Shuffle
 
 
 def num_encoder(database):
@@ -29,6 +30,7 @@ def cluster():
     ID = Full_data['id']
     Mode = Full_data['mode']
     length = Full_data['duration_ms']
+    artist = Full_data['artist']
     Full_data = Full_data.drop(
         columns=['track', 'album_id', 'artist', 'id', 'mode'])
     Fdata = Full_data.values
@@ -36,7 +38,7 @@ def cluster():
     data_u = scaler.fit_transform(Fdata)
     # pca_transf = PCA(0.8)
     # PCA_data = pca_transf.fit_transform(data_u)
-    clusterer = AffinityPropagation(random_state=None, preference=-400)
+    clusterer = AffinityPropagation(random_state=None, preference=-500)
     # clusterer = HDBSCAN(min_cluster_size=20)
     # clusterer = MeanShift()
     labels = clusterer.fit_predict(data_u)
@@ -45,8 +47,9 @@ def cluster():
     Full_data['cluster'] = labels + 1
     Full_data['id'] = ID
     Full_data['mode'] = Mode
+    Full_data['artist'] = artist
     Full_data['duration_ms'] = length
-    Full_data.sort_values(by='cluster')
+    # Full_data.sort_values(by='cluster')
     Full_data.to_csv('clustered.csv', index=False)
     # sns.pairplot(Full_data, hue="cluster", palette='YlGnBu')
     # plt.show()

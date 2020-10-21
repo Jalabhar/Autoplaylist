@@ -134,7 +134,7 @@ def map_songs(lista, arquivo='Total'):
             time.sleep(1)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
     data = data.drop_duplicates(subset=['track'])
-    data[~data['track'].str.contains(
+    data = data[~data['track'].str.contains(
         'live|Live|commentary|Commentary|version|Version|Edition|edition')]
     data = data[data['liveness'] < 0.5]
     Data = data[data['speechiness'] < 0.8]
