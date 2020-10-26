@@ -8,20 +8,22 @@ from spotipy.oauth2 import SpotifyClientCredentials
 # To access authorised Spotify data
 
 
-def get_related(lista):
-    sleep_min = 0.5
-    sleep_max = 1.0
+def get_related(lista, n=1):
     request_count = 0
     relacionados_full = []
-    Client_id = 'your client id here'
-    Client_secret = 'you client secret here'
+    client_id = 'your client id'
+    client_secret = 'your client secret'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    for ID in lista:
-        info = sp.artist_related_artists(ID)
-        for i in range(len(info['artists'])):
-            relacionados_full.append(info['artists'][i]['id'])
+    counter = 0
+    while counter < n:
+        for ID in lista:
+            info = sp.artist_related_artists(ID)
+            for i in range(len(info['artists'])):
+                relacionados_full.append(info['artists'][i]['id'])
+        lista = list(set(relacionados_full))
+        counter += 1
     return relacionados_full
 
 
@@ -98,8 +100,8 @@ def albumSongs(uri, spotify_albums, sp, album_names, album_count):
 
 
 def map_songs(lista, arquivo='Total'):
-    Client_id = 'your client id here'
-    Client_secret = 'you client secret here'
+    client_id = 'your client id'
+    client_secret = 'your client secret'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -130,6 +132,9 @@ def map_songs(lista, arquivo='Total'):
     for album_id in album_ids:
         t = sp.album_tracks(album_id, limit=50, market='BR')
         tr.extend(t['items'])
+        i = album_ids.index(album_id)
+        if i % 100 == 99:
+            time.sleep(0.5)
     for i in range(len(tr)):
         artist = tr[i]['artists'][0]['name']
         track = tr[i]['name']
@@ -141,8 +146,8 @@ def map_songs(lista, arquivo='Total'):
         Features['track'] = track
         Features['album_id'] = album_id
         data = data.append(Features, ignore_index=True)
-        if i % 50 == 49:
-            time.sleep(1)
+        if i % 100 == 99:
+            time.sleep(0.5)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
     data = data.drop_duplicates(subset=['track'])
     data = data[~data['track'].str.contains(
@@ -159,11 +164,9 @@ def chunkify(lst, n):
 
 
 def map_playlist(playlist_ID, user, arquivo):
-    sleep_min = 0.5
-    sleep_max = 1.0
     request_count = 0
-    Client_id = 'your client id here'
-    Client_secret = 'you client secret here'
+    client_id = 'your client id'
+    client_secret = 'your client secret'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -203,8 +206,8 @@ def map_playlist(playlist_ID, user, arquivo):
 
 
 def getPlaylistTrackIDs(user, playlist_id):
-    Client_id = 'your client id here'
-    Client_secret = 'you client secret here'
+    client_id = 'your client id'
+    client_secret = 'your client secret'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)

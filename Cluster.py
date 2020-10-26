@@ -3,14 +3,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from hdbscan import HDBSCAN
 from sklearn.decomposition import PCA
-from sklearn.cluster import MeanShift
-from sklearn.cluster import DBSCAN
 from sklearn.cluster import AffinityPropagation
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler as Scaler
-from sklearn.utils import shuffle as Shuffle
+from sklearn.metrics import silhouette_score
 
 
 def num_encoder(database):
@@ -39,10 +36,11 @@ def cluster(playlist):
     data_u = scaler.fit_transform(Fdata)
     # pca_transf = PCA(0.8)
     # PCA_data = pca_transf.fit_transform(data_u)
-    clusterer = AffinityPropagation(random_state=None, preference=-500)
+    clusterer = AffinityPropagation(random_state=None, preference=-450)
     # clusterer = HDBSCAN(min_cluster_size=20)
     # clusterer = MeanShift()
     labels = clusterer.fit_predict(data_u)
+    score = silhouette_score(data_u, labels)
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
     labels.shape = (len(labels), 1)
     Full_data['cluster'] = labels + 1
@@ -54,7 +52,7 @@ def cluster(playlist):
     Full_data.to_csv('clustered.csv', index=False)
     # sns.pairplot(Full_data, hue="cluster", palette='YlGnBu')
     # plt.show()
-    return n_clusters
+    return n_clusters, score
 
 
 def list_spliter(source):
@@ -73,6 +71,6 @@ def reassigner(source):
     base_cluster['cluster'] = data['predicted_cluster']
     base_cluster['probs'] = data['predicted_prob']
     base_cluster = base_cluster.sort_values(by='probs')
-    base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(5)
+    base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(15)
     base_cluster = base_cluster.sort_values(by='probs')
     base_cluster.to_csv('reassigned ' + source + '.csv', index=False)

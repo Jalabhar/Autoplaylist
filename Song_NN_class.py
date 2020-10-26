@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras import callbacks
-from keras.regularizers import l2
+# from keras.regularizers import l2
 from sklearn.preprocessing import StandardScaler as Scaler
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ def Classifier():
     es = callbacks.EarlyStopping(
         monitor="val_loss",
         min_delta=0,
-        patience=500,
+        patience=250,
         verbose=0,
         mode="auto",
         baseline=None,
@@ -21,7 +21,7 @@ def Classifier():
     )
     mc = tf.keras.callbacks.ModelCheckpoint(
         'best_model.h5',
-        monitor="val_accuracy",
+        monitor="val_loss",
         verbose=0,
         save_best_only=True,
         save_weights_only=False,

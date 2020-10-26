@@ -5,11 +5,11 @@ import spotipy.oauth2 as oauth
 import spotipy.client
 from sklearn.preprocessing import StandardScaler as Scaler
 import numpy as np
-import scipy.spatial as sp
-Client_ID = 'your client id here'
-Client_Secret = 'you client secret here'
-username = 'your username here'
-SPOTIPY_REDIRECT_URI = 'your redirect url here'
+import scipy.spatial as spy
+Client_ID = 'your client id'
+Client_Secret = 'your client secret'
+username = 'your username'
+SPOTIPY_REDIRECT_URI = 'http://localhost:8080'
 scope = 'playlist-modify-public'
 credentials = oauth.SpotifyClientCredentials(Client_ID, Client_Secret)
 
@@ -19,20 +19,26 @@ def chunkify(lst, n):
     return L
 
 
-token = util.prompt_for_user_token(username=username,
-                                   scope=scope,
-                                   client_id=Client_ID,
-                                   client_secret=Client_Secret,
-                                   redirect_uri=SPOTIPY_REDIRECT_URI)
+# token = util.prompt_for_user_token(username=username,
+#                                    scope=scope,
+#                                    client_id=Client_ID,
+#                                    client_secret=Client_Secret,
+#                                    redirect_uri=SPOTIPY_REDIRECT_URI)
 
 
-def create_playlists(n, name, max_duration=15.0, min_duration=1.0):
+def create_playlists(n, name, max_duration=24.0, min_duration=1.0):
+    token = util.prompt_for_user_token(username=username,
+                                       scope=scope,
+                                       client_id=Client_ID,
+                                       client_secret=Client_Secret,
+                                       redirect_uri=SPOTIPY_REDIRECT_URI)
+    existing_playlists = pd.read_csv('playlist register.csv')
     sp = spotipy.Spotify(auth=token)
     lid = []
     names = []
     for i in range(n):
         k = str(i + 1)
-        Name = "Jalabhar's " + name + ' ' + k
+        Name = name + ' ' + k
         file_source = Name + '.csv'
         try:
             tracks_database = pd.read_csv(file_source)
@@ -42,31 +48,44 @@ def create_playlists(n, name, max_duration=15.0, min_duration=1.0):
             ) / 3600000.0
             running_time = tracks_database['total time'].values
             if len(running_time) > 0 and running_time[-1] >= min_duration:
-                tracks_database = tracks_database[tracks_database['total time'] <=
-                                                  max_duration]
-                new_list = sp.user_playlist_create(
-                    username, name=Name, )
-                list_id = new_list['id']
+                tracks_database = tracks_database[tracks_database['total time']
+                                                  <= max_duration]
                 tracks_id = list(tracks_database['id'])
-                L = len(tracks_id)
-                # DB = pd.DataFrame(columns=['playlist_ids'])
-                if L > 10:
-                    if L % 50 != 0.0:
-                        n = 1 + int(L / 50)
-                    else:
-                        n = int(L / 50)
-                    T = chunkify(tracks_id, n)
-                    for chunk in T:
+                if Name not in existing_playlists['playlist_name'].values:
+                    new_list = sp.user_playlist_create(
+                        username, name=Name, )
+                    list_id = new_list['id']
+                    L = len(tracks_id)
+                    # DB = pd.DataFrame(columns=['playlist_ids'])
+                    if L > 10:
+                        if L % 50 != 0.0:
+                            n = 1 + int(L / 50)
+                        else:
+                            n = int(L / 50)
+                        T = chunkify(tracks_id, n)
+                        for chunk in T:
+                            sp.user_playlist_add_tracks(
+                                Client_ID, list_id, chunk)
+                        lid.append(list_id)
+                        names.append(Name)
+                else:
+                    plist = existing_playlists[existing_playlists['playlist_name'] == Name]
+                    pl_id = plist['playlist_id'].values
+                    # print(pl_id[0])
+                    t_id = tracks_id[:100]
+                    tracks_id = tracks_id[100:]
+                    sp.playlist_replace_items(pl_id[0], t_id)
+                    while len(tracks_id) > 0:
+                        t_id = tracks_id[:50]
+                        tracks_id = tracks_id[50:]
                         sp.user_playlist_add_tracks(
-                            Client_ID, list_id, chunk)
-                    lid.append(list_id)
-                    names.append(Name)
+                            Client_ID, pl_id[0], t_id)
         except FileNotFoundError:
             pass
     df = pd.DataFrame(lid, columns=['playlist_id'])
     df['playlist_name'] = names
-    df2 = pd.read_csv('playlist register.csv')
-    df2 = df2.append(df)
+    # df2 = pd.read_csv('playlist register.csv')
+    df2 = existing_playlists.append(df)
     df2.to_csv('playlist register.csv', index=False)
 
 
@@ -75,10 +94,9 @@ def sparser(dataset):
     scaler = Scaler()
     scaled_d = scaler.fit_transform(d)
     # scaled_d = scaled_d[-20:]
-    dist = np.triu(sp.distance_matrix(scaled_d, scaled_d))
+    dist = np.triu(spy.distance_matrix(scaled_d, scaled_d))
     scaled_dist = scaler.fit_transform(dist)
     arg = np.max(scaled_dist)
-    # print(Max)
     indexes = np.argwhere(dist > (.5 * arg))
     I = indexes.T
     keep = list(set(I[0]))
