@@ -11,8 +11,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 def get_related(lista, n=1):
     request_count = 0
     relacionados_full = []
-    client_id = 'your client id'
-    client_secret = 'your client secret'
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -100,8 +100,8 @@ def albumSongs(uri, spotify_albums, sp, album_names, album_count):
 
 
 def map_songs(lista, arquivo='Total'):
-    client_id = 'your client id'
-    client_secret = 'your client secret'
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -124,9 +124,7 @@ def map_songs(lista, arquivo='Total'):
                                r[i]['id'], r[i]['name']])
     Albums = pd.DataFrame(
         albums, columns=['artist id', 'artist name', 'album id', 'album name'])
-    # Albums = Albums.rename()
     album_ids = list(Albums['album id'])
-    # print(len(album_ids))
     data = pd.DataFrame()
     tr = []
     for album_id in album_ids:
@@ -163,14 +161,19 @@ def chunkify(lst, n):
     return L
 
 
-def map_playlist(playlist_ID, user, arquivo):
+def map_playlist(arquivo, user=None, playlist_ID=None):
     request_count = 0
-    client_id = 'your client id'
-    client_secret = 'your client secret'
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     INFO = pd.DataFrame()
+    if playlist_ID is None:
+        results = sp.search(q=arquivo, type='playlist')
+        playlist_ID = results['playlists']['items'][0]['id']
+        if user is None:
+            user = results['playlists']['items'][0]['owner']['display_name']
     tracks = getPlaylistTrackIDs(user, playlist_ID)
     playlist_info = []
     for song_id in tracks:
@@ -206,8 +209,8 @@ def map_playlist(playlist_ID, user, arquivo):
 
 
 def getPlaylistTrackIDs(user, playlist_id):
-    client_id = 'your client id'
-    client_secret = 'your client secret'
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)

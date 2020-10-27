@@ -34,8 +34,6 @@ def cluster(playlist):
     Fdata = Full_data.values
     scaler = Scaler()
     data_u = scaler.fit_transform(Fdata)
-    # pca_transf = PCA(0.8)
-    # PCA_data = pca_transf.fit_transform(data_u)
     clusterer = AffinityPropagation(random_state=None, preference=-450)
     # clusterer = HDBSCAN(min_cluster_size=20)
     # clusterer = MeanShift()
@@ -60,7 +58,7 @@ def list_spliter(source):
     for i in range(max(Data['cluster'].values)):
         Dados = Data[Data['cluster'] == i + 1]
         k = str(i + 1)
-        Name = source + ' ' + k
+        Name = "Jalabhar's " + source + ' ' + k
         file = Name + '.csv'
         Dados.to_csv(file, index=False)
 
@@ -71,6 +69,6 @@ def reassigner(source):
     base_cluster['cluster'] = data['predicted_cluster']
     base_cluster['probs'] = data['predicted_prob']
     base_cluster = base_cluster.sort_values(by='probs')
-    base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(15)
+    base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(8)
     base_cluster = base_cluster.sort_values(by='probs')
     base_cluster.to_csv('reassigned ' + source + '.csv', index=False)
