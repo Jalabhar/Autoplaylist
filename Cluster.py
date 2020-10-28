@@ -29,8 +29,11 @@ def cluster(playlist):
     Mode = Full_data['mode']
     length = Full_data['duration_ms']
     artist = Full_data['artist']
+    key = Full_data['key']
+    time_signature = Full_data['time_signature']
     Full_data = Full_data.drop(
-        columns=['track', 'album_id', 'artist', 'id', 'mode'])
+        columns=['track', 'album_id', 'artist', 'id', 'mode', 'duration_ms',
+                 'key', 'time_signature'])
     Fdata = Full_data.values
     scaler = Scaler()
     data_u = scaler.fit_transform(Fdata)
@@ -46,6 +49,8 @@ def cluster(playlist):
     Full_data['mode'] = Mode
     Full_data['artist'] = artist
     Full_data['duration_ms'] = length
+    Full_data['key'] = key
+    Full_data['time_signature'] = time_signature
     # Full_data.sort_values(by='cluster')
     Full_data.to_csv('clustered.csv', index=False)
     # sns.pairplot(Full_data, hue="cluster", palette='YlGnBu')
