@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
-from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import AgglomerativeClustering
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler as Scaler
 from sklearn.metrics import silhouette_score
@@ -37,7 +37,7 @@ def cluster(playlist):
     Fdata = Full_data.values
     scaler = Scaler()
     data_u = scaler.fit_transform(Fdata)
-    clusterer = AffinityPropagation(random_state=None, preference=-450)
+    clusterer = AgglomerativeClustering(n_clusters=None, distance_threshold=50)
     # clusterer = HDBSCAN(min_cluster_size=20)
     # clusterer = MeanShift()
     labels = clusterer.fit_predict(data_u)
