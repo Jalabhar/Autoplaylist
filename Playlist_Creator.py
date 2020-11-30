@@ -98,7 +98,7 @@ def sparser(dataset):
     dist = np.triu(spy.distance_matrix(scaled_d, scaled_d))
     scaled_dist = scaler.fit_transform(dist)
     arg = np.max(scaled_dist)
-    indexes = np.argwhere(dist > (.5 * arg))
+    indexes = np.argwhere(dist > (.15 * arg))
     I = indexes.T
     keep = list(set(I[0]))
     sparse_d = dataset.iloc[keep, :]
