@@ -149,9 +149,9 @@ def map_songs(lista, arquivo='Total'):
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
     data = data.drop_duplicates(subset=['track'])
     data = data[~data['track'].str.contains(
-        'live|Live|commentary|Commentary|version|Version|Edition|edition')]
-    data = data[data['liveness'] < 0.5]
-    Data = data[data['speechiness'] < 0.8]
+        'live|Live|commentary|Commentary|version|Version|Edition|edition|Interview|interview')]
+    data = data[data['liveness'] < 0.6]
+    #Data = data[data['speechiness'] < 0.8]
     file = arquivo + '.csv'
     Data.to_csv(file, index=False)
 
