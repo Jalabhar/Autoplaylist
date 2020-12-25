@@ -11,8 +11,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 def get_related(lista, n=1):
     request_count = 0
     relacionados_full = []
-    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
-    client_secret = '1acfedb043d644f48f3cf403e1995778'
+    client_id = ''
+    client_secret = ''
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -100,8 +100,8 @@ def albumSongs(uri, spotify_albums, sp, album_names, album_count):
 
 
 def map_songs(lista, arquivo='Total'):
-    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
-    client_secret = '1acfedb043d644f48f3cf403e1995778'
+    client_id = ''
+    client_secret = ''
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -131,8 +131,8 @@ def map_songs(lista, arquivo='Total'):
         t = sp.album_tracks(album_id, limit=50, market='BR')
         tr.extend(t['items'])
         i = album_ids.index(album_id)
-        if i % 100 == 99:
-            time.sleep(0.5)
+        # if i % 100 == 99:
+        #     time.sleep(0.5)
     for i in range(len(tr)):
         artist = tr[i]['artists'][0]['name']
         track = tr[i]['name']
@@ -144,8 +144,8 @@ def map_songs(lista, arquivo='Total'):
         Features['track'] = track
         Features['album_id'] = album_id
         data = data.append(Features, ignore_index=True)
-        if i % 100 == 99:
-            time.sleep(0.5)
+        # if i % 100 == 99:
+        #     time.sleep(0.5)
     data = data.drop(columns=['type', 'uri', 'track_href', 'analysis_url'])
     data = data.drop_duplicates(subset=['track'])
     data = data[~data['track'].str.contains(
@@ -153,7 +153,7 @@ def map_songs(lista, arquivo='Total'):
     data = data[data['liveness'] < 0.6]
     #Data = data[data['speechiness'] < 0.8]
     file = arquivo + '.csv'
-    Data.to_csv(file, index=False)
+    data.to_csv(file, index=False)
 
 
 def chunkify(lst, n):
@@ -209,8 +209,8 @@ def map_playlist(arquivo, user=None, playlist_ID=None):
 
 
 def getPlaylistTrackIDs(user, playlist_id):
-    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
-    client_secret = '1acfedb043d644f48f3cf403e1995778'
+    client_id = ''
+    client_secret = ''
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)

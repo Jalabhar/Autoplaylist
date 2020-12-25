@@ -6,9 +6,10 @@ import spotipy.client
 from sklearn.preprocessing import StandardScaler as Scaler
 import numpy as np
 import scipy.spatial as spy
-Client_ID = '11b38cefc27c4e399f30c4fbc4bd5f68'
-Client_Secret = '1acfedb043d644f48f3cf403e1995778'
-username = 'mat.nob'
+from sort_playlist import reorder
+Client_ID = ''
+Client_Secret = ''
+username = ''
 SPOTIPY_REDIRECT_URI = 'http://localhost:8080'
 scope = 'playlist-modify-public'
 credentials = oauth.SpotifyClientCredentials(Client_ID, Client_Secret)
@@ -19,14 +20,7 @@ def chunkify(lst, n):
     return L
 
 
-# token = util.prompt_for_user_token(username=username,
-#                                    scope=scope,
-#                                    client_id=Client_ID,
-#                                    client_secret=Client_Secret,
-#                                    redirect_uri=SPOTIPY_REDIRECT_URI)
-
-
-def create_playlists(n, name, max_duration=24.0, min_duration=1.0):
+def create_playlists(n, name, max_duration=12.0, min_duration=0.8):
     token = util.prompt_for_user_token(username=username,
                                        scope=scope,
                                        client_id=Client_ID,
@@ -38,19 +32,19 @@ def create_playlists(n, name, max_duration=24.0, min_duration=1.0):
     names = []
     for i in range(n):
         k = str(i + 1)
-        Name = "Jalabhar's " + name + ' ' + k
+        Name = "Jalabhar's " + name + ' Cluster ' + k
         file_source = Name + '.csv'
         try:
             tracks_database = pd.read_csv(file_source)
             if len(tracks_database.values) > 0:
                 tracks_database = sparser(tracks_database)
-                # tracks_database = tracks_database[tracks_database['probs'] > .9]
+                tracks_database = reorder(tracks_database)
                 tracks_database['total time'] = tracks_database['duration_ms'].cumsum(
                 ) / 3600000.0
                 running_time = tracks_database['total time'].values
                 if len(running_time) > 0 and running_time[-1] >= min_duration:
-                    tracks_database = tracks_database[tracks_database['total time']
-                                                      <= max_duration]
+                    tracks_database = tracks_database[tracks_database['total time'] <=
+                                                      max_duration]
                     tracks_id = list(tracks_database['id'])
                     if Name not in existing_playlists['playlist_name'].values:
                         new_list = sp.user_playlist_create(

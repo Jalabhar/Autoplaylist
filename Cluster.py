@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler as Scaler
@@ -37,9 +36,7 @@ def cluster(playlist):
     Fdata = Full_data.values
     scaler = Scaler()
     data_u = scaler.fit_transform(Fdata)
-    clusterer = AgglomerativeClustering(n_clusters=None, distance_threshold=50)
-    # clusterer = HDBSCAN(min_cluster_size=20)
-    # clusterer = MeanShift()
+    clusterer = AgglomerativeClustering(n_clusters=None, distance_threshold=35)
     labels = clusterer.fit_predict(data_u)
     score = silhouette_score(data_u, labels)
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
@@ -51,10 +48,7 @@ def cluster(playlist):
     Full_data['duration_ms'] = length
     Full_data['key'] = key
     Full_data['time_signature'] = time_signature
-    # Full_data.sort_values(by='cluster')
     Full_data.to_csv('clustered.csv', index=False)
-    # sns.pairplot(Full_data, hue="cluster", palette='YlGnBu')
-    # plt.show()
     return n_clusters, score
 
 
