@@ -1,3 +1,4 @@
+# import modin.pandas as mpd
 import pandas as pd
 import numpy as np
 import Data_Collector as DC
@@ -44,14 +45,15 @@ def tracker(start, end):
     # nx.draw(G, pos=nx.spring_layout(G), node_size=25, style='dotted')
 
 
-def path_points(f_end, s_end):
+def Path_Points(f_end, s_end,two_way=False):
     path_1 = tracker(f_end, s_end)
-    path_2 = tracker(s_end, f_end)
     path_points = []
     for point in path_1:
         path_points.extend(point)
-    for point in path_2:
-        path_points.extend(point)
+    if two_way:
+        path_2 = tracker(s_end, f_end)
+        for point in path_2:
+            path_points.extend(point)
     path_points = list(set(path_points))
     path_df = pd.DataFrame(path_points, columns=['id'])
     path_df.to_csv('path_list.csv', index=False)

@@ -4,6 +4,7 @@ from keras.layers import Dense, Dropout
 from keras import callbacks
 from sklearn.preprocessing import StandardScaler as Scaler
 import numpy as np
+# import modin.pandas as mpd
 import pandas as pd
 
 
@@ -39,13 +40,17 @@ def Classifier():
     train_data = train_data.fillna(0)
     train_label = train_label.fillna(0)
     train_data = scaler.fit_transform(train_data)
-    n_layers = 2
+    n_layers = 1
+    n_labels = (1 + np.max(train_label.values))
+    n_input_neurons = 1 + len(train_data[0])
+    n_neurons = 8 * n_labels
     model = Sequential()
-    model.add(Dense(64, input_dim=len(train_data[0]), activation='relu'))
+    model.add(Dense(n_input_neurons, input_dim=len(
+        train_data[0]), activation='relu'))
     for _ in range(n_layers):
-        model.add(Dense(64, activation='relu'))
+        model.add(Dense(n_neurons, activation='relu'))
     model.add(Dropout(0.2))
-    model.add(Dense((1 + np.max(train_label.values)), activation='softmax'))
+    model.add(Dense(n_labels, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
     model.fit(train_data, train_label, epochs=500, batch_size=50,

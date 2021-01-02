@@ -1,6 +1,5 @@
 import numpy as np
 import benchmarks as bm
-# rand_gen = np.random.default_rng()
 
 
 def build_swarms(lim, n_swarms, n_parts, n_dims, step, starting):
@@ -49,8 +48,8 @@ def create_uniques(arr):
 def mtx_dif(Swarm, mtx):
     a = np.equal(Swarm, mtx).astype(int)
     b = np.not_equal(Swarm, mtx).astype(int)
-    return (a * np.subtract(Swarm, mtx)
-            + b * (Swarm))
+    return (a * np.subtract(Swarm, mtx) +
+            b * (Swarm))
     # + 0.01 *  np.random.uniform(np.min(Swarm), np.max(Swarm), Swarm.shape)
 
 

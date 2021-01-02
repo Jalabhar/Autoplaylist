@@ -1,8 +1,10 @@
 
 import numpy as np
+# import modin.pandas as mpd
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler as Scaler
@@ -31,7 +33,7 @@ def cluster(playlist):
     key = Full_data['key']
     time_signature = Full_data['time_signature']
     Full_data = Full_data.drop(
-        columns=['track', 'album_id', 'artist', 'id', 'mode', 'duration_ms',
+        columns=['track', 'album_id', 'artist', 'artist_id', 'id', 'mode', 'duration_ms',
                  'key', 'time_signature'])
     Fdata = Full_data.values
     scaler = Scaler()
@@ -52,12 +54,12 @@ def cluster(playlist):
     return n_clusters, score
 
 
-def list_spliter(source):
+def list_spliter(source, author):
     Data = pd.read_csv('reassigned ' + source + '.csv')
     for i in range(max(Data['cluster'].values)):
         Dados = Data[Data['cluster'] == i + 1]
         k = str(i + 1)
-        Name = "Jalabhar's " + source + ' ' + k
+        Name = author + "'s " + source + ' ' + k
         file = Name + '.csv'
         Dados.to_csv(file, index=False)
 
@@ -68,6 +70,6 @@ def reassigner(source):
     base_cluster['cluster'] = data['predicted_cluster']
     base_cluster['probs'] = data['predicted_prob']
     base_cluster = base_cluster.sort_values(by='probs')
-    base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(8)
-    base_cluster = base_cluster.sort_values(by='probs')
+    # base_cluster = base_cluster.groupby(by=['artist', 'cluster']).head(8)
+    # base_cluster = base_cluster.sort_values(by='probs')
     base_cluster.to_csv('reassigned ' + source + '.csv', index=False)

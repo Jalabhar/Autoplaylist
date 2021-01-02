@@ -1,5 +1,6 @@
 import spotipy
 import time
+# import modin.pandas as mpd
 import pandas as pd
 import numpy as np
 import json
@@ -11,8 +12,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 def get_related(lista, n=1):
     request_count = 0
     relacionados_full = []
-    client_id = ''
-    client_secret = ''
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -99,13 +100,21 @@ def albumSongs(uri, spotify_albums, sp, album_names, album_count):
     return spotify_albums
 
 
-def map_songs(lista, arquivo='Total'):
-    client_id = ''
-    client_secret = ''
+def map_songs(lista, arquivo='Total', update_flag=False):
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     albums = []
+    All_Data = pd.read_csv('All_Data.csv')
+    data = pd.DataFrame()
+    if update_flag == False:
+        for artist_id in lista:
+            if artist_id in All_Data['artist_id'].values:
+                data = data.append(
+                    All_Data[All_Data['artist_id'] == artist_id])
+                lista.remove(artist_id)
     for artist_id in lista:
         results = sp.artist_albums(
             artist_id, album_type='album', country='BR')
@@ -125,7 +134,6 @@ def map_songs(lista, arquivo='Total'):
     Albums = pd.DataFrame(
         albums, columns=['artist id', 'artist name', 'album id', 'album name'])
     album_ids = list(Albums['album id'])
-    data = pd.DataFrame()
     tr = []
     for album_id in album_ids:
         t = sp.album_tracks(album_id, limit=50, market='BR')
@@ -135,12 +143,14 @@ def map_songs(lista, arquivo='Total'):
         #     time.sleep(0.5)
     for i in range(len(tr)):
         artist = tr[i]['artists'][0]['name']
+        artist_id = tr[i]['artists'][0]['id']
         track = tr[i]['name']
         album_id = tr[i]['id']
         duration = tr[i]['duration_ms']
         features = sp.audio_features(album_id)
         Features = pd.DataFrame(features)
         Features['artist'] = artist
+        Features['artist_id'] = artist_id
         Features['track'] = track
         Features['album_id'] = album_id
         data = data.append(Features, ignore_index=True)
@@ -151,9 +161,10 @@ def map_songs(lista, arquivo='Total'):
     data = data[~data['track'].str.contains(
         'live|Live|commentary|Commentary|version|Version|Edition|edition|Interview|interview')]
     data = data[data['liveness'] < 0.6]
-    #Data = data[data['speechiness'] < 0.8]
+    All_Data = All_Data.append(data, ignore_index=True)
     file = arquivo + '.csv'
     data.to_csv(file, index=False)
+    All_Data.to_csv('All_Data.csv', index=False)
 
 
 def chunkify(lst, n):
@@ -209,8 +220,8 @@ def map_playlist(arquivo, user=None, playlist_ID=None):
 
 
 def getPlaylistTrackIDs(user, playlist_id):
-    client_id = ''
-    client_secret = ''
+    client_id = '11b38cefc27c4e399f30c4fbc4bd5f68'
+    client_secret = '1acfedb043d644f48f3cf403e1995778'
     client_credentials_manager = SpotifyClientCredentials(
         client_id=client_id, client_secret=client_secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -219,5 +230,4 @@ def getPlaylistTrackIDs(user, playlist_id):
     for item in playlist['tracks']['items']:
         track = item['track']
         ids.append(track['id'])
-
     return ids

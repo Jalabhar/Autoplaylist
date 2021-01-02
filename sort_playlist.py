@@ -1,16 +1,17 @@
-import TSP
+import benchmarks as bm
 import numpy as np
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 import seaborn as sns
 import PSO
+# import modin.pandas as mpd
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler as Scaler
 from scipy.spatial import distance_matrix
 
 
 def reorder(data):
-    F = TSP.TSPCF
+    F = bm.TSPCF
     scaler = Scaler()
     c_data = data.drop(
         columns=['cluster', 'id', 'artist', 'duration_ms', 'time_signature'])
@@ -31,7 +32,16 @@ def reorder(data):
     M = edge_lengths.index(m_d)
     A = np.append(A[M:], A[:M])
     B -= m_d
-    data['new_order'] = A
-    data = data.sort_values(by='new_order')
-    dataset = data.drop(columns=['new_order'])
-    return dataset
+    try:
+        L_range = list(range(len(A)))
+        N_order = [list(A).index(val) for val in L_range]
+        data['new_order'] = N_order
+        data = data.sort_values(by='new_order')
+        dataset = data.drop(columns=['new_order'])
+        try:
+            dataset = data.drop(columns=['Unnamed: 0'])
+        except:
+            pass
+        return dataset
+    except:
+        return data
