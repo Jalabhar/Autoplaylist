@@ -1,12 +1,13 @@
 import discord
 import nest_asyncio
 import random
+import os
 import path_interface_func as PI
 from discord.ext import commands
 from flask import Flask
 from threading import Thread
 nest_asyncio.apply()
-TOKEN = open('TOKEN.txt', 'r').readline()
+TOKEN = os.getenv('TOKEN')
 client = discord.Client()
 
 app = Flask('')
